@@ -1,23 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+   <!-- FIX [Critical]: charset declaration added as the first element in <head>
+        to ensure correct character decoding for all text content. -->
+   <meta charset="UTF-8">
    <title>Roast Toast Coast Cafe</title>
    <style>
-       @font-face {
-           font-family: 'Bogart';
-           src: url('https://fonts.cdnfonts.com/s/24702/Bogart-Light.woff') format('woff');
-           font-weight: normal;
-           font-style: normal;
-       }
+       /* FIX [Critical]: Replaced fragile third-party CDN @font-face URL with a
+          reliable Google Fonts import, which is self-maintained and CORS-safe. */
+       @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400&display=swap');
 
        body {
            background-color: black;
-           font-family: 'Bogart', sans-serif;
+           /* FIX [Critical]: Updated font-family to match the Google Fonts import. */
+           font-family: 'Lato', sans-serif;
            margin: 0;
            padding: 0;
            display: grid;
            grid-template-columns: 1fr 1fr; /* Two columns of equal width */
-           height: 100vh; /* Full height */
+           /* FIX [Medium]: Changed height to min-height so the layout can grow
+              when the menu list expands on short viewports instead of clipping. */
+           min-height: 100vh;
        }
 
        .content {
@@ -29,14 +32,16 @@
        }
 
        .image-container {
-           background-image: url('https://images.unsplash.com/photo-1514066558159-fc8c737ef259?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8MHx8fA%3D%3D';
+           background-image: url('https://images.unsplash.com/photo-1514066558159-fc8c737ef259?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8MHx8fA%3D%3D');
            background-size: cover;
            background-position: center;
+           /* FIX [High]: Added background-color fallback so the column is never
+              blank if the external Unsplash image fails to load. */
+           background-color: #3a3a3a;
            height: 100%;
        }
 
        .header-container {
-           background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent white */
            border: 1px solid rgba(255, 255, 255, 0.3); /* Light border for a sleek look */
            border-radius: 15px;
            padding: 20px;
@@ -44,10 +49,14 @@
            width: 90%;
            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.7); /* Soft shadow */
            text-align: center;
+           /* FIX [Medium]: Removed the dead rgba background-color declaration
+              that was silently overridden by "background: wheat" below it. */
            background: wheat;
        }
 
-       header h1 {
+       /* FIX [High]: Corrected selectors from "header h1 / header p" (matched
+          nothing — no <header> element existed) to ".header-container h1 / p". */
+       .header-container h1 {
            color: #FFCC00; /* Bright gold for contrast */
            font-size: 3em;
            margin-bottom: 10px;
@@ -55,22 +64,14 @@
            line-height: 1.2; /* Adjust spacing between lines */
        }
 
-       header p {
+       .header-container p {
            font-size: 1.3em;
-           color: #FFFFFF; /* White for good readability */
+           color: #555555; /* Darkened for readability against wheat background */
            margin: 0;
-           text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6); /* Subtle shadow for depth */
+           text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
        }
 
-       /* .menu-section {
-           background-color: #000000;
-           color: #FFFFFF;
-           padding: 20px;
-           margin: 0;
-           width: 90%;
-           border-radius: 15px;
-           box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.7);
-       } */
+       /* FIX [Medium]: Removed the commented-out dead .menu-section block. */
        .menu-section {
            background-color: #000000;
            color: #FFFFFF;
@@ -108,19 +109,28 @@
 
        .menu-toggle:hover {
            color: #FF9933;
-           cursor: pointer;
+           /* FIX [Low]: Removed duplicate cursor: pointer — already set on the
+              base .menu-section h2 selector above. */
        }
    </style>
 </head>
 <body>
-   <div class="content">
-       <div class="header-container">
+   <!-- FIX [Low]: Changed <div class="content"> to <main> for a proper
+        landmark that assistive technologies and search crawlers can identify. -->
+   <main class="content">
+       <!-- FIX [High]: Replaced <div class="header-container"> with a semantic
+            <header> element so CSS selectors are consistent; kept the class so
+            existing .header-container rules still apply. -->
+       <header class="header-container">
            <h1>Welcome to the<br>Roast Toast Coast Cafe!</h1>
            <p>Where flavor meets the shore!</p>
-       </div>
+       </header>
 
        <section class="menu-section">
-           <h2 class="menu-toggle" onclick="toggleMenuItems()">Our Menu</h2>
+           <!-- FIX [Medium]: Removed inline onclick handler. Added role="button"
+                and tabindex="0" for keyboard accessibility. The listener is now
+                attached in the <script> block below using addEventListener. -->
+           <h2 class="menu-toggle" role="button" tabindex="0">Our Menu</h2>
            <ul class="menu-items">
                <li>Breezy Brews</li>
                <li>Toasty Delights</li>
@@ -128,15 +138,35 @@
                <li>Sunset Sips</li>
            </ul>
        </section>
-   </div>
+   </main>
 
-   <div class="image-container"></div>
+   <!-- FIX [Low]: Added aria-hidden="true" — the image is purely decorative
+        and should be invisible to screen readers. -->
+   <div class="image-container" aria-hidden="true"></div>
 
+   <!-- FIX [High]: <script> is placed last in <body> (already was), but the
+        listener is now attached via addEventListener instead of inline onclick,
+        keeping the element out of the grid-item flow concern. -->
    <script>
-       function toggleMenuItems() {
-           const menuItems = document.querySelector('.menu-item');
-           menuItems.style.display = menuItems.style.display === 'block' ? 'none' : 'block';
-       }
+       (function () {
+           const toggle = document.querySelector('.menu-toggle');
+           const menuItems = document.querySelector('.menu-items');
+
+           function toggleMenuItems() {
+               const isVisible = menuItems.style.display === 'block';
+               menuItems.style.display = isVisible ? 'none' : 'block';
+               toggle.setAttribute('aria-expanded', String(!isVisible));
+           }
+
+           toggle.addEventListener('click', toggleMenuItems);
+           /* Keyboard support: activate on Enter or Space, matching button behaviour. */
+           toggle.addEventListener('keydown', function (e) {
+               if (e.key === 'Enter' || e.key === ' ') {
+                   e.preventDefault();
+                   toggleMenuItems();
+               }
+           });
+       }());
    </script>
 </body>
 </html>
